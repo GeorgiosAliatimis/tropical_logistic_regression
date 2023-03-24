@@ -23,6 +23,8 @@ for ( i in 1:N ) distances.trop2[i] = trop_dist(S2,u2[i,])
 hist(distances.trop1, prob=TRUE)
 hist(distances.trop2, prob=TRUE)
 
+distances.trop = c(distances.trop1,distances.trop2)
+
 sigma_tr = ( mean(distances.trop1) + mean(distances.trop2)) /(2 * (e-1))
 sigma_tr1 = mean(distances.trop1) / (e-1)
 sigma_tr2 = mean(distances.trop2) / (e-1) 
@@ -46,9 +48,9 @@ l_eucl = - log(2*pi) * e * N - log(sigma_eucl) * e * 2 * N - .5 * 2 * N * e
 x = distances.eucl
 x2 <- seq(min(x), max(x), length = 100)
 
-fun <- 2 * x2 * dchisq(x2^2, df=dim(u)[2])
-hist(distances.eucl, prob=TRUE, ylim= c(0,max(fun) ) )
-lines(x2, fun, col = 2, lwd = 2)
+# fun <- 2 * x2 * dchisq(x2^2, df=dim(u)[2])
+# hist(distances.eucl, prob=TRUE, ylim= c(0,max(fun) ) )
+# lines(x2, fun, col = 2, lwd = 2)
 
 library("distory")
 S1 = load_trees(paste(dir,"Species1.tre",sep=""))
