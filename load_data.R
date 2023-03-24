@@ -2,15 +2,7 @@ library(ape)
 library(tools)
 
 load_data <- function(data_file_name){
-    print(data_file_name)
-    file_type = file_ext(data_file_name)
-    if(file_type %in% c("nex","dat") ){
-      T = ape::read.nexus(data_file_name)
-    } 
-    if (file_type == "tre"){
-      T = ape::read.tree(data_file_name)
-    }
-    T = c(T)
+    T = load_trees(data_file_name)
 
     ## number of leaves in every gene tree
     n <- length(T[[1]]$tip.label) 
@@ -22,9 +14,26 @@ load_data <- function(data_file_name){
 
     for(i in 1:N){
         u <- T[[i]]
-        u$edge.length <- u$edge.length/max(u$edge.length)
+        # u$edge.length <- u$edge.length/max(u$edge.length)
         dist_mat <- cophenetic(u)
         D[i, ] <- dist_mat[lower.tri(t(dist_mat))]
     }
     return(D)
+}
+
+load_trees <- function(data_file_name){
+  file_type = file_ext(data_file_name)
+  if(file_type %in% c("nex","dat") ){
+    T = ape::read.nexus(data_file_name)
+  } 
+  if (file_type == "tre"){
+    T = ape::read.tree(data_file_name)
+  }
+  T = c(T)
+  for(i in 1:length(T)){
+    u <- T[[i]]
+    u$edge.length <- u$edge.length/max(u$edge.length)
+    T[[i]] = u
+  }
+  T
 }
