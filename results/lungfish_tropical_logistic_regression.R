@@ -1,7 +1,7 @@
 ###########################################
-## Author :  Ruriko Yoshida
+## Author :  Ruriko Yoshida and Georgios Aliatimis
 ## Date   :  August 8th 2022
-## Update :  August 9th 2022
+## Update :  April 4th 2023
 ## Program:  This code produces a tropical logistic regression for lungfish data
 ## Input  :  
 ## Output :  
@@ -13,8 +13,7 @@
 library(ROCR)
 source("load_data.R")
 source("test_model.R")
-source("ulr.R")
-source("generic_logistic_regression.R")
+source("methods/ulr.R")
 
 ## NJ trees
 ## Reading lungfish data

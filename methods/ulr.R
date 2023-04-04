@@ -1,5 +1,5 @@
-source("generic_logistic_regression.R")
-source("upgma.R")
+source("methods/generic_logistic_regression.R")
+source("methods/upgma.R")
 
 prob <- function(pars,u){
     sigmoid(inner_product(pars,u))

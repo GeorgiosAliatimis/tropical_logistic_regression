@@ -1,5 +1,5 @@
-source("generic_logistic_regression.R")
-source("upgma.R")
+source("methods/generic_logistic_regression.R")
+source("methods/upgma.R")
 
 
 trop_dist <- function(x,y)  {
