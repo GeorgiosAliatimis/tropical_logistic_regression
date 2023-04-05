@@ -1,9 +1,9 @@
 library(ROCR)
-source("load_data.R")
+source("coalescent_model/load_data.R")
 source("test_model.R")
 
 train_and_test <- function(datafile0,datafile1,model="ulr"){
-  source(paste(model,".R",sep=""))
+  source(paste("methods/",model,".R",sep=""))
   
   D0 = load_data(datafile0)
   D1 = load_data(datafile1)

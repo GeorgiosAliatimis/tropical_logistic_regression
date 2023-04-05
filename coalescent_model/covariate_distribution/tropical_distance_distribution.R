@@ -1,5 +1,5 @@
-source("load_data.R")
-dir = "./data/Depth0.7/"
+source("coalescent_model/load_data.R")
+dir = "coalescent_model/data/Depth0.7/"
 
 S1 = load_data(paste(dir,"Species1.tre",sep=""))
 u1 = load_data(paste(dir,"Genes1_Depth0.7.nex",sep=""))
@@ -24,6 +24,7 @@ hist(distances.trop1, prob=TRUE)
 hist(distances.trop2, prob=TRUE)
 
 distances.trop = c(distances.trop1,distances.trop2)
+
 
 sigma_tr = ( mean(distances.trop1) + mean(distances.trop2)) /(2 * (e-1))
 sigma_tr1 = mean(distances.trop1) / (e-1)

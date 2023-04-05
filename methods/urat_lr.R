@@ -41,6 +41,8 @@ normalize_data <- function(D) D
 pars_gen <- function(Y,D){
     N = dim(D)[1]/2
     # c(colMeans(D[1:N,]), colMeans(D[(N+1):(2*N),]),1.0)
+    print(D)
+    print(Y)
     c(colMeans(D[Y==0]), colMeans(D[Y==1]), 1.0)
 }
 
