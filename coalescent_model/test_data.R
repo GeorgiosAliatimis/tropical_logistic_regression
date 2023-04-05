@@ -40,7 +40,7 @@ for (R in Rs){
 
 # save(aucs,file="aucs.Rdata")
 
-inds=1:11
+inds= (Rs <= 2)
 plot(Rs[inds],aucs[["clr"]][inds],ylab="AUC",xlab="R")
 points(Rs[inds],aucs[["ulr"]][inds],col="green")
 points(Rs[inds],aucs[["urat_lr"]][inds],col="red")
