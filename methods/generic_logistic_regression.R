@@ -23,6 +23,7 @@ logit.cost.function <- function(pars, Y, D){
     if(Y[i] == 0)
       c <- c - log(1-p)
   }
+  c <- c/N
   return(c)
 }
 
@@ -32,27 +33,35 @@ logistic.with.init.guess <- function(pars.init, Y, D){
   ## pars.init = c(omega.init, lambda), where
   ## omega.init is the initial vector for the normal vector for the tropical hyperplane.
   ## and lambda is the scaling factor.
-
-  l <- function(omega){
+  
+  if(!exists("log_like")){
+    log_like <- function(...) 0
+  }
+  if(!exists("regularization_term")){
+    regularization_term <- function(...) 0
+  }
+  
+  l <- function(pars){
     #calculates the log-likelihood function
-    -logit.cost.function(omega,Y,D)
+    # print(paste(logit.cost.function(pars,Y,D), regularization_term(pars)))
+    -logit.cost.function(pars,Y,D) - regularization_term(pars) - log_like(pars,Y,D)
   }
 
   gr <- function(pars) logistic_gradient(pars,Y,D)
-  
-  opt <- optim(par=pars.init,fn=l,gr=gr, method="CG",control=list(fnscale=-1))
-  
+  opt <- optim(par=pars.init,fn=l,gr=gr, method="CG",control=list(fnscale=-1,maxit=25))
+  # print(length(Y) * (log(2) - logit.cost.function(opt$par,Y,D)))
   return(list(log_lik_val = opt$value, omega = opt$par))
+  # return(list(log_lik_val = l(pars.init), omega = pars.init))
 }
 
-logistic <- function(Y,D){
+logistic <- function(Y,D,quiet=F){
   ans = list(log_lik_val = -Inf, omega = NULL) 
   for(i in 1:I){
     pars.init = pars_gen(Y,D) 
     tmp <- logistic.with.init.guess(pars.init,Y,D)
     if(tmp$log_lik_val > ans$log_lik_val) {
       ans = tmp
-      print(paste("Found optimum with log-likelihood value",ans$log_lik_val))
+      if(!quiet) print(paste("Found optimum with log-likelihood value",ans$log_lik_val))
     }
   }
   return(ans) 
