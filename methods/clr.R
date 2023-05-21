@@ -15,6 +15,8 @@ logistic_gradient <- function(omega,Y,D){
     ans
 }
 
+regularization_term <- function(pars) 0
+
 inner_product <- function(pars,d) pars %*% d 
 
 normalize_data <- function(D) cbind(D,rep(1,dim(D)[1]))
