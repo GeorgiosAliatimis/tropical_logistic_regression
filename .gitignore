@@ -4,4 +4,4 @@
 .Ruserdata
 .Rproj
 extra/
-*data/
+**data/
