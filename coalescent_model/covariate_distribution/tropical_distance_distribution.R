@@ -1,4 +1,4 @@
-source("coalescent_model/load_data.R")
+source("load_data.R")
 dir = "coalescent_model/data/Depth0.7/"
 library("distory")
 library("phangorn")
