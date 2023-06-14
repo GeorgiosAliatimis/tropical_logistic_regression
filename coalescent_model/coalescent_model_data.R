@@ -62,7 +62,7 @@ for (R in Rs){
     gene_trees_file1 = paste(dir,"/",list.files(dir,pattern=paste("gene_trees_",2*r-1,sep=""))[1],sep="")
     gene_trees_file2 = paste(dir,"/",list.files(dir,pattern=paste("gene_trees_",2*r,sep=""))[1],sep="")
     
-    res <- train_and_test(gene_trees_file1,gene_trees_file2, model = "fw")
+    res <- train_and_test(gene_trees_file1,gene_trees_file2, model = "fw",method="two_species")
     print(res$log_lik_val)
     ROCs[[paste(R)]] = res$ROC
     AUCs[[paste(R)]] = res$AUC
@@ -79,4 +79,3 @@ for (R in Rs){
     tree_dists.trop[[paste(R)]][2*r] = d2[2]
   }
 }
-# save(list = c("Rs","ROCs","AUCs","tree_dists.RF","tree_dists.trop"),file="python_fw_all_Rs_big.RData")
