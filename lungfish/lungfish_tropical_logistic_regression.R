@@ -42,7 +42,7 @@ for(i in 1:length(tree_files)){
   for(j in 1:length(class_files)){
     class_file = paste(class_file_pref,class_files[i],sep="")
     class = classes[j]
-    res = train_and_test(tree_file,class_file,model="fw")
+    res = train_and_test(tree_file,class_file,model="fw",method="two_species")
     key = paste(method,".",class,sep="")
     rocs[[key]] = res$ROC
     aucs[key] = res$AUC
@@ -140,8 +140,8 @@ plot_tree <- function(omega,title){
 m=10
 e=45
 titles = names(pars)
-# tree_from_paper = ape::read.tree(text="(((((homo,gallus),xenopus), lungfish),latimeria), (danio, takifugu), ((scyliorhin, leucoraja), callorhinc));")
-tree_from_paper = ape::read.tree(text="((((homo,gallus),xenopus), (lungfish,latimeria)), (danio, takifugu), ((scyliorhin, leucoraja), callorhinc));")
+
+expected_tree = ape::read.tree(text="((((homo,gallus),xenopus), (lungfish,latimeria)), (danio, takifugu), ((scyliorhin, leucoraja), callorhinc));")
 
 library(phangorn)
 tree_dists = c()
@@ -149,17 +149,12 @@ for(i in 1:10){
   title = titles[i] 
   par = pars[i][[title]]
   omega_1 = par[1:e]
-  # png(paste(title,"_1.png",sep=""))
   u1= plot_tree(omega_1,title)
-  # dev.off()
-  tree_dists = c(tree_dists,RF.dist(u1,tree_from_paper))
+  tree_dists = c(tree_dists,RF.dist(u1,expected_tree))
   
   if(length(par) > e+2){
     omega_2 = par[(e+1):(2*e)]
-    # png(paste(title,"_2.png",sep=""))
     u2= plot_tree(omega_2,title)
-    # dev.off()
-    tree_dists = c(tree_dists,RF.dist(u2,tree_from_paper))
-    # print(RF.dist(u1,u2))
+    tree_dists = c(tree_dists,RF.dist(u2,expected_tree))
   }
 }
