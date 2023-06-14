@@ -1,5 +1,5 @@
 rm(list=ls())
-source("coalescent_model/load_data.R")
+source("load_data.R")
 
 e=45
 
@@ -98,4 +98,4 @@ probs_bhv  = unlist(probs_bhv)
 probs_trop = unlist(probs_trop)
 probs_eucl = unlist(probs_eucl)
 
-save(list=c("Rs","probs_eucl","probs_trop","probs_bhv","sigmas","theoretical_probs"),file="gen_error_data.RData")
+#save(list=c("Rs","probs_eucl","probs_trop","probs_bhv","sigmas","theoretical_probs"),file="gen_error_data.RData")
