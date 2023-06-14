@@ -1,5 +1,5 @@
 library(ROCR)
-source("coalescent_model/load_data.R")
+source("load_data.R")
 source("test_model.R")
 
 train_and_test <- function(tree_file,class_file,model="ulr"){
@@ -18,7 +18,6 @@ train_and_test <- function(tree_file,class_file,model="ulr"){
   res <- logistic(Y.train, D.train)
   
   pars <- res$omega
-  logit.cost.function(pars,Y.train,D.train)
   
   Y.hat <- Testing.Model(pars, D.test)
   Y.class <- ifelse(Y.hat > 0.5, 1, 0)

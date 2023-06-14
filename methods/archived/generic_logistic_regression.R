@@ -48,7 +48,7 @@ logistic.with.init.guess <- function(pars.init, Y, D){
   }
 
   gr <- function(pars) logistic_gradient(pars,Y,D)
-  opt <- optim(par=pars.init,fn=l,gr=gr, method="CG",control=list(fnscale=-1,maxit=25))
+  opt <- optim(par=pars.init,fn=l,gr=gr, method="CG",control=list(fnscale=-1,maxit=100))
   # print(length(Y) * (log(2) - logit.cost.function(opt$par,Y,D)))
   return(list(log_lik_val = opt$value, omega = opt$par))
   # return(list(log_lik_val = l(pars.init), omega = pars.init))

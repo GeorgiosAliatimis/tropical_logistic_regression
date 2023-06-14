@@ -12,7 +12,7 @@
 # New library for calculating ROC curves
 rm(list=ls())
 library(ROCR)
-source("coalescent_model/load_data.R")
+source("load_data.R")
 source("test_model.R")
 source("lungfish/train_and_test.R")
 
@@ -42,7 +42,7 @@ for(i in 1:length(tree_files)){
   for(j in 1:length(class_files)){
     class_file = paste(class_file_pref,class_files[i],sep="")
     class = classes[j]
-    res = train_and_test(tree_file,class_file,model="tlr")
+    res = train_and_test(tree_file,class_file,model="fw")
     key = paste(method,".",class,sep="")
     rocs[[key]] = res$ROC
     aucs[key] = res$AUC
@@ -127,13 +127,13 @@ print(aucs$MLE.kpca2)
 labels = c("callorhinc","danio","gallus","homo",       "latimeria",  "leucoraja",  "lungfish",   "scyliorhin","takifugu", "xenopus"  )
 plot_tree <- function(omega,title){
   dist_mat = matrix(0,m,m)
-  dist_mat[lower.tri(dist_mat)]= omega - min(omega) 
+  dist_mat[lower.tri(dist_mat)]= omega - min(omega) + .1
   dist_mat = dist_mat + t(dist_mat)
   row.names(dist_mat) = labels
   colnames(dist_mat) = labels
-  u = phangorn::upgma(dist_mat)
-  # u = hclust(as.dist(dist_mat),method="complete")
-  # u = as.phylo(u)
+  #u = phangorn::upgma(dist_mat)
+  u = hclust(as.dist(dist_mat),method="complete")
+  u = as.phylo(u)
   plot(u,main=title)
   u
 }
@@ -163,9 +163,3 @@ for(i in 1:10){
     # print(RF.dist(u1,u2))
   }
 }
-
-# res = train_and_test("lungfish/data/lungfish_mle.txt", "lungfish/data/fish_MLE_dbscan_clustering.txt", model="ulr")
-# plot_tree(res$pars[1:e],"dbscan")
-# plot_tree(res$pars[(e+1):(2*e)],"dbscan")
-# res = train_and_test("lungfish/data/lungfish_mle.txt", "lungfish/data/fish_MLE_dbscan_clustering.txt", model="tlr")
-# plot_tree(res$pars[1:e],"dbscan")
