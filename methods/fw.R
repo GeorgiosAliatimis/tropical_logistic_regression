@@ -5,9 +5,7 @@ source("methods/clust.R")
 S <- function(x) 1/(1+exp(-x))
 trop_dist <- function(x,y) max(x-y) - min(x-y)
 
-model_type = "one_species" # three options; "one_species", "two_species", "general"
-
-logistic <- function(Y,D){
+logistic <- function(Y,D, model_type="two_species"){
   N = dim(D)[1]
   e = dim(D)[2]
   omega = list()
