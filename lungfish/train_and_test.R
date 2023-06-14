@@ -2,7 +2,7 @@ library(ROCR)
 source("load_data.R")
 source("test_model.R")
 
-train_and_test <- function(tree_file,class_file,model="ulr"){
+train_and_test <- function(tree_file,class_file,model="fw",method="two_species"){
   source(paste("methods/",model,".R",sep=""))
   
   D = load_data(tree_file)
@@ -15,7 +15,7 @@ train_and_test <- function(tree_file,class_file,model="ulr"){
   Y.train <- Y[sampler, 1]
   Y.test <- Y[-sampler, 1]
   
-  res <- logistic(Y.train, D.train)
+  res <- logistic(Y.train, D.train,method=method)
   
   pars <- res$omega
   
