@@ -73,13 +73,12 @@ logistic <- function(Y,D, model_type="two_species"){
 sigma_est <- function(pars,Y,D){
   e = length(pars)/2
   N = dim(D)[1]
-  omega <- pars[1:e]
   
   D0 = D[Y==0,]
   N0 = sum(Y==0)
   d0 = 0
   for(i in 1:N0){
-    d0 = d0 + trop_dist(omega,D0[i,])
+    d0 = d0 + trop_dist(pars[1:e],D0[i,])
   }
   d0 = d0/N0
   
@@ -87,7 +86,7 @@ sigma_est <- function(pars,Y,D){
   N1 = sum(Y==1)
   d1 = 0
   for(i in 1:N1){
-    d1 = d1 + trop_dist(omega,D1[i,])
+    d1 = d1 + trop_dist(pars[(e+1):(2*e)],D1[i,])
   }
   d1 = d1/N1
   
