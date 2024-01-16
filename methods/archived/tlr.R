@@ -1,69 +1,84 @@
-source("methods/generic_logistic_regression.R")
+source("methods/utils.R")
+library("rootSolve")
 source("methods/clust.R")
 
-prob <- function(pars,u){
-    sigmoid(inner_product(pars,u))
-}
+S <- function(x) 1/(1+exp(-x))
+trop_dist <- function(x,y) max(x-y) - min(x-y)
 
-logistic_gradient <- function(pars,Y,D){
-    #calculates the gradient of the log-likelihood function.
-    e = length(pars) - 2
-    N = dim(D)[1]
-    lambda = pars[length(pars)]
-    C = pars[length(pars) - 1]
-    omega = pars[1:e]
-    ans = rep(0,length(pars))
+logistic <- function(Y,D, model_type="two_species"){
+  N = dim(D)[1]
+  e = dim(D)[2]
+  omega = list()
+
+  if (model_type == "one_species"){
+    tmp = FWpoint(D)$par
+    omega[[1]] = tmp
+    omega[[2]] = tmp
+  } else {
+    omega[[1]] = FWpoint(D[Y==0,])$par
+    omega[[2]] = FWpoint(D[Y==1,])$par
+  }
+  
+  # Find optimal scalars sigma_0 and sigma_1
+  f <- function(t){
+    lambda = exp(t)
+    ans = 0 
     for(i in 1:N){
-        h = inner_product(pars,D[i,])
-        p <- sigmoid(h)
-        l_max = which.max(omega - D[i,])
-        l_min = which.min(omega - D[i,])
-        ans[l_max] <- ans[l_max] + (Y[i] - p) * lambda
-        ans[l_min] <- ans[l_min] - (Y[i] - p) * lambda
-        ans[length(pars)] <- ans[length(pars)] + (Y[i] - p) * h/lambda
-        ans[length(pars) - 1] <- ans[length(pars) - 1] - (Y[i] - p) * lambda
+      x = D[i,]
+      h = lambda[1] * trop_dist(x,omega[[1]]) - lambda[2] * trop_dist(x,omega[[2]]) + (e-1)*log(lambda[2]/lambda[1])
+      ans <- ans + Y[i] * log(S(h)) + (1-Y[i]) * log(S(-h))
     }
-    ans <- ans/N
-    if(exists("log_like_grad")) ans <- ans + log_like_grad(pars, Y, D) 
-    ans <- ans - regularization_term_grad(pars) 
+    ans/N
+  }
+  
+  # lambda = multiroot(grad,c(1,1))$root
+  pars = c(omega[[1]],omega[[2]])
+  pars.init = 1/sigma_est(pars,Y,D) 
+  if(model_type == "two_species"){
+    #Under this model, we assume that lambda[1] = lambda[2] = lambda
+    pars.init = mean(pars.init)
+    grad <- function(t){
+      lambda <- exp(t)
+      ans <- 0
+      for(i in 1:N){
+        x = D[i,]
+        h = lambda * (trop_dist(x,omega[[1]]) - trop_dist(x,omega[[2]]))
+        ans <- ans + (Y[i] - S(h)) * h
+      }
+      ans/N
+    }
+    t = optim(par=log(pars.init),fn=function(x) f(c(x,x)),gr=grad,method="CG",control=list(fnscale=-1))$par
+    lambda = exp(t)
+    lambda = c(lambda, lambda)
+  } else {
+    grad <- function(t){
+      lambda = exp(t)
+      ans <- rep(0,2)
+      for(i in 1:N){
+        x = D[i,]
+        h = lambda[1] * trop_dist(x,omega[[1]]) - lambda[2] * trop_dist(x,omega[[2]]) + (e-1)*log(lambda[2]/lambda[1])
+        ans[1] <- ans[1] + (Y[i] - S(h)) * (lambda[1] * trop_dist(x,omega[[1]]) + (e-1)) 
+        ans[2] <- ans[2] - (Y[i] - S(h)) * (lambda[2] * trop_dist(x,omega[[2]]) + (e-1)) 
+      }
+      ans/N
+    }
+    t = optim(par=log(pars.init),fn=f,gr=grad,method="CG",control=list(fnscale=-1))$par
+    lambda = exp(t)
+  }
+  # lambda = sigma_est(pars,Y,D)
+  print(paste("Log-likelihood is ",f(log(lambda))))
+  list(log_lik_val=f(lambda),omega=c(omega[[1]],omega[[2]],lambda))
 }
-
-# log_like <- function(pars,Y,D){
-#   e = length(pars) - 2
-#   N = dim(D)[1]
-#   sigma = sigma_est(pars,Y,D)
-#   sigma0 = sigma[1]
-#   sigma1 = sigma[2]
-#   p = sum(Y=0)/N
-#   - (e-1) * (1 + p* log(sigma0) + (1-p) * log(sigma1) )
-# }
-# 
-# log_like_grad <- function(pars,Y,D){
-#   e = length(pars) -2 
-#   N = dim(D)[1]
-#   omega = pars[1:e]
-#   sigma = sigma_est(pars,Y,D)
-#   p = sum(Y=0)/N
-#   grad= rep(0,length(pars))
-#   for(i in 1:N){
-#     j_min = which.min(omega - D[i,])
-#     j_max = which.max(omega - D[i,]) 
-#     grad[j_max] = grad[j_max] + 1/sigma[1+Y[i]]
-#     grad[j_min] = grad[j_min] - 1/sigma[1+Y[i]]
-#   }
-#   - grad/N
-# }
 
 sigma_est <- function(pars,Y,D){
-  e = length(pars) - 2
+  e = length(pars)/2
   N = dim(D)[1]
-  omega <- pars[1:e]
   
   D0 = D[Y==0,]
   N0 = sum(Y==0)
   d0 = 0
   for(i in 1:N0){
-    d0 = d0 + trop_dist(omega,D0[i,])
+    d0 = d0 + trop_dist(pars[1:e],D0[i,])
   }
   d0 = d0/N0
   
@@ -71,66 +86,17 @@ sigma_est <- function(pars,Y,D){
   N1 = sum(Y==1)
   d1 = 0
   for(i in 1:N1){
-    d1 = d1 + trop_dist(omega,D1[i,])
+    d1 = d1 + trop_dist(pars[(e+1):(2*e)],D1[i,])
   }
   d1 = d1/N1
   
   c(d0,d1) /(e-1)
 }
 
-inner_product <- function(pars,u){
-  e=length(u)
-  lambda = pars[length(pars)]
-  C = pars[length(pars)-1]
-  omega = pars[1:e]
-  (trop_dist(u,omega) - C) * lambda
-}
-
-normalize_data <- function(D) D
-
-pars_gen <- function(Y,D){
-  omega = colMeans(D[Y==0,])
-  e = length(omega)
-  pars = c(omega,0,0)
-  sigma = sigma_est(pars,Y,D)
-  lambda <- 1/sigma[1]-1/sigma[2]
-  C <- (e-1) * log(sigma[2]/sigma[1]) / lambda
-  c(omega,C,lambda)
-  # C = mean(sapply(D[Y==1,],function(x) trop_dist(x,omega))) / 2
-  # c(omega, C, 1/max(D))
-}
-
-I=1
-
-penalty = 100
-
-regularization_term <- function(pars){
-  # || omega_1 - pi(omega_1) ||^2 + || omega_2 - pi(omega_2) ||^2
-  e = length(pars) - 2
-  
-  omega = pars[1:e]
-  L = clust(omega) - omega
-  penalty/2 * (L %*% L) 
-}
-
-regularization_term_grad <- function(pars){
-  e = length(pars) - 2
-  omega  = pars[1:e]
-  reg_grad <- rep(0,length(pars))
-  EPS = 1e-10
-  
-  proj = clust(omega)
-  l = proj - omega
-  for(j in 1:e){
-    if(abs(l[j]) < EPS){
-      J = (abs(proj[j] - proj) < EPS)
-      reg_grad[j] <- reg_grad[j] + sum(l[J])
-    }
-  }
-  
-  penalty * reg_grad
-}
-
-trop_dist <- function(x,y)  {
-  max(x-y) - min(x-y)
+prob <- function(pars,x){
+  e= (length(pars)-2)/2
+  lambda = pars[(2*e+1):(2*e+2)]
+  omega =list(pars[1:e],pars[(e+1):(2*e)])
+  h = lambda[1] * trop_dist(x,omega[[1]]) - lambda[2] * trop_dist(x,omega[[2]]) + (e-1)*log(lambda[2]/lambda[1])
+  S(h)
 }
