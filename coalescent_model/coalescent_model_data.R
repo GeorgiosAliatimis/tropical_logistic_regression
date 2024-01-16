@@ -62,8 +62,10 @@ for (R in Rs){
     gene_trees_file1 = paste(dir,"/",list.files(dir,pattern=paste("gene_trees_",2*r-1,sep=""))[1],sep="")
     gene_trees_file2 = paste(dir,"/",list.files(dir,pattern=paste("gene_trees_",2*r,sep=""))[1],sep="")
     
-    res <- train_and_test(gene_trees_file1,gene_trees_file2, model = "fw",method="two_species")
-    print(res$log_lik_val)
+    D1 = load_data(gene_trees_file1)
+    D2 = load_data(gene_trees_file2)
+    
+    res <- train_and_test(D1,D2,mode="tropical")
     ROCs[[paste(R)]] = res$ROC
     AUCs[[paste(R)]] = res$AUC
     probs[[paste(R)]] = res$probs
