@@ -34,7 +34,7 @@ logistic_gradient <- function(pars,Y,D){
     ans = rep(0,length(pars))
     for(i in 1:nrow(D)){
         p <- S(inner_product(pars, D[i,]))
-        ans <- ans + (Y[i] - p) * D[i,]
+        ans <- ans + c(Y[i] - p) * D[i,]
     }
     ans
 }
