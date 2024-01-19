@@ -4,12 +4,10 @@ args = commandArgs(trailingOnly=TRUE)
 dir = args[1]
 iter_file = args[2]
 proportion_of_data = as.numeric(args[3])
-output_file = file.path(dir,paste("aucs_",proportion_of_data,sep=""))
+output_file = file.path(dir,paste("aucs",sep=""))
 
 iterations = scan(iter_file)
 aucs = c()
-# p = as.numeric(args[2])
-# N = as.numeric(args[3])
 N = 10
 thin <- function(D) D[sample(nrow(D),trunc(nrow(D)*p)),]
 
@@ -19,11 +17,8 @@ file2 = file.path(dir,"v2.csv")
 D0 = as.matrix(read.csv(file1,sep=" ")) 
 D1 = as.matrix(read.csv(file2,sep=" "))
 
-aucs = scan(output_file)
 for(end in iterations){
 	print(end)
-	if(end < 2e4) next
-	# end = i * nrow(D0)%/%num_generations 
 	start = round( (1-proportion_of_data) * end)
 	indices = start:end
 	D0i = D0[indices,]
