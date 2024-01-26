@@ -1,15 +1,12 @@
 #!/bin/bash
 
 folder=$1
+iter_file=$2
 
 for dir in $folder/*/
 do
 	echo $dir
-	cd $dir
-	Rscript ../../trees_to_vectors.R 
-	cd ../..
-	Rscript test_case.R $dir primates_iterations.txt 0.3
-	# cd $dir
-	# rm v1.csv v2.csv
-	# cd ../..
+	Rscript mr_bayes/trees_to_vectors.R $dir
+	Rscript mr_bayes/test_case.R $dir $iter_file 0.3
+	rm $dir/v1.csv $dir/v2.csv
 done

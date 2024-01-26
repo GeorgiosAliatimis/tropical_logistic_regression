@@ -4,18 +4,18 @@ args = commandArgs(trailingOnly=TRUE)
 dir = args[1]
 iter_file = args[2]
 proportion_of_data = as.numeric(args[3])
-output_file = file.path(dir,paste("aucs",sep=""))
+
+input_file_1 = file.path(dir,"v1.csv")
+input_file_2 = file.path(dir,"v2.csv")
+output_file = file.path(dir,"aucs")
 
 iterations = scan(iter_file)
 aucs = c()
 N = 10
 thin <- function(D) D[sample(nrow(D),trunc(nrow(D)*p)),]
 
-file1 = file.path(dir,"v1.csv") 
-file2 = file.path(dir,"v2.csv")
-
-D0 = as.matrix(read.csv(file1,sep=" ")) 
-D1 = as.matrix(read.csv(file2,sep=" "))
+D0 = as.matrix(read.csv(input_file_1,sep=" ")) 
+D1 = as.matrix(read.csv(input_file_2,sep=" "))
 
 for(end in iterations){
 	print(end)
@@ -30,7 +30,6 @@ for(end in iterations){
 		auc = c(auc,out$AUC[[1]])
 	}
 	aucs = c(aucs, mean(auc))
-	start = end + 1
 	print(paste(end,mean(auc),"+-", sd(auc)/sqrt(N)))
 }
 print(aucs)
