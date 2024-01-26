@@ -14,11 +14,7 @@ mv gene $2
 cd $2
 python3 ../mr_bayes/create_mb_file.py gene $3 $4 $5
 
-# start=`find . -maxdepth 1 -type d | wc -l`
-start=1
-end=$6
-
-for (( i=$start; i<=$end; i++ ))
+for (( i=1; i<=$6; i++ ))
 do
     printf "no" | mb -i mb_file > out
     grep "Average standard deviation of split frequencies" out |  grep -Eo '[0-9\.]+'>> asdsfs
