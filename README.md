@@ -19,8 +19,10 @@ To compare classical, tropical and BHV logistic regression, run the following
 ```
 source("./coalescent_model/covariate_distribution/gen_error.R")
 ```
-2. Lungfish dataset 
-Run the following in R
+2. Mr Bayes convergence criterion
+Run the following in the terminal (warning; it takes a long time to run)
 ```
-source("./lungfish/lungfish_tropical_logistic_regression.R")
+./mr_bayes/mb.sh mr_bayes/primates.nex mb_data  100000 1 200 100
+./mr_bayes/tlr.sh mb_data/ mr_bayes/primates_iterations.txt 
+python3 mr_bayes/plotting.py mb_data mr_bayes/primates_iterations.txt 200
 ```
